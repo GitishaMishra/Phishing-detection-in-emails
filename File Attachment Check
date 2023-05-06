@@ -1,0 +1,126 @@
+print(attachment)
+phishing = ['.7z', '.application', '.appref-ms', '.appxbundle', '.arj', '.asd', '.bgi', '.bz2', '.cab', '.daa', '.desktopthemepackfile', '.doc', '.docm', '.dot', '.dotm', '.eml', '.gadget', '.gz', '.htm', '.html', '.hwpx', '.ics', '.img', '.iqy', '.jnlp', '.library-ms', '.lnk', '.mam', '.mht', '.html', '.msrcincident', '.odt', '.oxps', '.pdf', '.pot', '.potm', '.ppa', '.ppam', '.pps', '.ppsm', '.ppt', '.pub', '.rar', '.rtf', '.scf', '.searchConnector-ms', '.settingcontents-ms', '.sldm', '.slk', '.svg', '.tar', '.theme', '.themepack', '.url', '.uue', '.wbk', '.website', '.wim', '.wiz', '.xlam', '.xll', '.xlm', '.xls', '.xlsb', '.xlsm', '.xlt', '.xltm', '.xps', '.xz', '.z', '.zip']
+executable = ['.a3x', '.appinstaller', '.applescript', '.application', '.appref-ms', '.appx', '.appxbundle', '.bat', '.chm', '.cmd', '.com', '.cpl', '.cs', '.daa', '.diagcab', '.dll', '.dmg', '.exe', '.gadget', '.hta', '.img', '.iso', '.jar', '.jnlp', '.js', '.jse', '.lnk', '.mam', '.msi', '.ocx', '.pif', '.ppa', '.ppam', '.ppkg', '.ps1', '.py', '.pyc', '.pyo', '.pyw', '.pyz', '.pyzw', '.scpt', '.scr', '.service', '.settingcontent-ms', '.sh', '.so', '.timer', '.vb', '.vbe', '.vbs', '.wim', '.ws', '.wsf', '.wsh', '.xlam', '.xll']
+file_archiver = ['.7z', '.arj', '.bz2', '.cab', '.daa', '.gadget', '.gz', '.rar', '.tar', '.uue', '.vhd', '.vhdx', '.wim', '.xz', '.z', '.zip']
+script = ['.a3x', '.bat', '.bgi', '.cmd', '.hta', '.htm', ',html', '.js', '.jse', '.mht', '.mhtml', '.mof', '.pdf', '.ps1', '.py', '.pyc', '.pyo', '.pyw', '.pyz', '.pyzx', '.scpt', '.sct', '.service', '.sh', '.svg', '.vb', '.vbs', '.vbe', '.ws', '.wsf', '.wsh', '.xsl']
+double_click = ['.appinstaller', '.application', '.appref-ms', '.appx', '.appxbundle', '.asd', '.bat', '.bz2', '.chm', '.cmd', '.com', '.cpl', '.desktopthemepackfile', '.diagcab', '.dmg', '.doc', '.docm', '.dot', '.dotm', '.exe', '.gadget', '.gz', '.hta', '.htm', '.html', '.ics', '.img', '.iqy', '.iso' '.jnlp', '.js', '.jse', '.lnk', '.mam', '.mht', '.mhtml', '.msc', '.msi', '.odt', '.oxps', '.pdf', '.pot', '.potm', '.pps', '.ppsm', '.ppt', '.pptm', '.pub', '.reg', '.rtf', '.scr', '.settingcontent-ms', '.sh', '.sldm', '.slk', '.svg', '.tar', '.theme', '.themepark', '.url', '.uue', '.vbe', '.vbs', '.wbk', '.website', '.wsf', '.wsh', '.xll', '.xlm', '.xls', '.xlsb', '.xlsm', '.xls', '.xlt', '.xltm', '.xps', '.xps', '.zip']
+macros = ['.asd', '.doc', '.docm', '.docm', '.dot', '.pot', '.potm', '.pps', '.ppsm', '.ppt', '.pub', '.sldm', '.slk', '.wbk', '.xlam', '.xlm', '.xlsm', '.xlsb', '.xlt', '.xltm', '.xls']
+
+def executable_check(p):
+  if p in executable:
+    return 1
+  else:
+    return 0
+
+def phishing_check(p):
+  if p in phishing:
+    return 1
+  else:
+    return 0
+    
+def macros_check(p):
+  if p in macros:
+    return 1
+  else:
+    return 0
+    
+ def double_click_check(p):
+  if p in double_click:
+    return 1
+  else: 
+    return 0
+def file_archiver_check(p):
+  if p in file_archiver:
+    return 1
+  else:
+    return 0
+def script_check(p):
+  if p in script:
+    return 1
+  else:
+    return 0
+    
+def extension_check(p):
+  executable_check(p)
+  phishing_check(p)
+  macros_check(p)
+  double_click_check(p)
+  file_archiver_check(p)
+  script_check(p)  
+  
+def split(i):
+  p = os.path.splitext(i)
+  return p[-1]
+  
+import io
+df = pd.read_csv(io.BytesIO(uploaded['Filenames.csv']))
+
+df['Extension'] = df.apply(lambda row: split(row['Filename']), axis=1)
+df['phishing'] = df.apply(lambda row: phishing_check(row['Extension']), axis=1)
+df['executable'] = df.apply(lambda row: executable_check(row['Extension']), axis=1)
+df['macros'] = df.apply(lambda row: macros_check(row['Extension']), axis=1)
+df['double_click'] = df.apply(lambda row: double_click_check(row['Extension']), axis=1)
+df['file_archiver'] = df.apply(lambda row: file_archiver_check(row['Extension']), axis=1)
+df['script'] = df.apply(lambda row: file_archiver_check(row['Extension']), axis=1)
+
+# Import the model we are using
+from sklearn.ensemble import RandomForestRegressor
+# Instantiate model with 1000 decision trees
+rf2 = RandomForestRegressor(n_estimators = 20, random_state = 42)
+
+# Use numpy to convert to arrays
+import numpy as np
+# Labels are the values we want to predict
+labels = np.array(df['Label'])
+# axis 1 refers to the columns
+df2= df.drop(['Label'], axis = 1)
+features= df2.drop(['Filename', 'Extension'], axis = 1)
+# Saving feature names for later use
+feature_list = list(features.columns)
+# Convert to numpy array
+features = np.array(features)
+
+# Using Skicit-learn to split data into training and testing sets
+from sklearn.model_selection import train_test_split
+# Split the data into training and testing sets
+train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size = 0.25, random_state = 42)
+
+# Train the model on training data
+rf2.fit(train_features, train_labels);
+predictions = rf2.predict(test_features)
+
+# Calculate the absolute errors
+errors = abs(predictions - test_labels)
+# Print out the mean absolute error (mae)
+mae = round(np.mean(errors),2)
+print('Mean Absolute Error:', mae)
+
+# Calculate mean absolute percentage error (MAPE)
+mape = (mae / len(test_labels))*100
+# Calculate and display accuracy
+accuracy = 100 - np.mean(mape)
+print('Accuracy:', round(accuracy, 2), '%.')
+
+fdf = pd.DataFrame(attachment)
+fdf.columns = ['Attachment']
+
+fdf['Extension'] = fdf.apply(lambda row: split(row['Attachment']), axis=1)
+fdf['phishing'] = fdf.apply(lambda row: phishing_check(row['Attachment']), axis=1)
+fdf['executable'] = fdf.apply(lambda row: executable_check(row['Attachment']), axis=1)
+fdf['script'] = fdf.apply(lambda row: script_check(row['Attachment']), axis=1)
+fdf['macros'] = fdf.apply(lambda row: macros_check(row['Attachment']), axis=1)
+fdf['double-click'] = fdf.apply(lambda row: double_click_check(row['Attachment']), axis=1)
+fdf['file_archiver'] = fdf.apply(lambda row: file_archiver_check(row['Attachment']), axis=1) 
+
+# Use numpy to convert to arrays
+import numpy as np
+# axis 1 refers to the columns
+f= fdf.drop(['Attachment'], axis = 1)
+feature = f.drop(['Extension'], axis = 1)
+# Saving feature names for later use
+feature_list = list(feature.columns)
+# Convert to numpy array
+feature = np.array(feature)
+
+pred1 = rf2.predict(feature)
+print(pred1)
