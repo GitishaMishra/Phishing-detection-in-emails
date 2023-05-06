@@ -1,0 +1,59 @@
+# Import the model we are using
+from sklearn.ensemble import RandomForestRegressor
+# Instantiate model with 1000 decision trees
+rf = RandomForestRegressor(n_estimators = 20, random_state = 42)
+
+# Use numpy to convert to arrays
+import numpy as np
+# Labels are the values we want to predict
+labels = np.array(df3['Label_bad'])
+# axis 1 refers to the columns
+df4 = df3.drop(['URL'], axis = 1)
+features= df4.drop(['Label_bad'], axis = 1)
+# Saving feature names for later use
+feature_list = list(features.columns)
+# Convert to numpy array
+features = np.array(features)
+
+# Using Skicit-learn to split data into training and testing sets
+from sklearn.model_selection import train_test_split
+# Split the data into training and testing sets
+train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size = 0.25, random_state = 42)
+
+# Train the model on training data
+rf.fit(train_features, train_labels);
+
+predictions = rf.predict(test_features)
+
+# Calculate the absolute errors
+errors = abs(predictions - test_labels)
+# Print out the mean absolute error (mae)
+mae = round(np.mean(errors),2)
+print('Mean Absolute Error:', mae)
+
+# Calculate mean absolute percentage error (MAPE)
+mape = (mae / len(test_labels))*100
+# Calculate and display accuracy
+accuracy = 100 - np.mean(mape)
+print('Accuracy:', round(accuracy, 2), '%.')
+
+data = {'url': url}
+udf = pd.DataFrame(data)
+udf['link'] = udf.apply(lambda row: count(row['url']), axis=1)
+udf['length'] = udf.apply(lambda row: url_length(row['url']), axis=1)
+udf['phishtank'] = udf.apply(lambda row: phishtank_check(row['url']), axis=1)
+udf['domain'] = udf.apply(lambda row: domain_check(row['url']), axis=1)
+udf['ip_address'] = udf.apply(lambda row: ip_check(row['url']), axis=1)
+udf['attherate'] = udf.apply(lambda row: url_character_check(row['url']), axis=1)
+udf['form_tag'] = udf.apply(lambda row: form_tag_check(row['url']), axis=1)
+
+features= udf.drop(['url'], axis = 1)
+# Saving feature names for later use
+feature_list = list(features.columns)
+# Convert to numpy array
+features = np.array(features)
+
+predictions = rf.predict(features)
+print(predictions)
+url_check_result = np.sum(predictions)/len(predictions)
+url_check_result
