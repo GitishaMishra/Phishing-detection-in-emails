@@ -1,0 +1,23 @@
+M = []
+for r in text1:
+  remove_stop_words(r)
+  max_words = 20000
+  max_length = 500
+ 
+  tokenizer = Tokenizer(num_words=max_words)
+  tokenizer.fit_on_texts(r)
+  sequences = tokenizer.texts_to_sequences(r)
+  m =pad_sequences(sequences, maxlen=max_length)
+  M.append(m)
+  
+  def Email_body_check(M):
+  for i in M:
+    pred = []
+    r = model.predict(i)
+    pred.append(r)
+    bin = [int(p>=0.5) for p in y_pred]
+    s = sum(bin)/len(bin)
+    return s
+    
+    email_result = Email_body_check(M)
+    print(email_result)
