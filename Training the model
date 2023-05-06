@@ -1,0 +1,61 @@
+# spliting dataset for training and testing purposes
+
+from sklearn.model_selection import train_test_split
+
+x_train,x_test,y_train,y_test=train_test_split(x, y, test_size=0.1, random_state=7)
+
+# training the model with training set
+
+hist = model.fit(x_train, y_train, validation_split=0.1, epochs=5, batch_size=18)
+
+# graph of training and validation accuracy
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+sns.set()
+ 
+acc = hist.history['accuracy']
+val = hist.history['val_accuracy']
+epochs = range(1, len(acc) + 1)
+ 
+plt.plot(epochs, acc, '-', label='Training accuracy')
+plt.plot(epochs, val, ':', label='Validation accuracy')
+plt.title('Training and Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend(loc='lower right')
+plt.plot()
+
+# we can give test set to the model
+# and let it make predictions whether a given email from test set is phishing or not
+
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+y_pred=model.predict(x_test)
+
+# Scatterplot of true values and predicted values
+
+import matplotlib.pyplot as plt # Visual Plots
+
+fig = plt.figure(figsize=(15,10))
+ax = plt.subplot2grid((2,2),(0,0))
+plt.scatter(x= y_test, y=y_pred, color=('blue'))
+ax.set_xlabel("Actual binary values: 0- legitimate, 1- phishing")
+ax.set_ylabel("Probability whether an email is phishing or not")
+
+# since the predicted values are in probablities (0.0 to 1.0)
+# we can assign 0 value for the predicted values less than 0.5
+# and 1 value for predicted values having more tha 0.5 value
+
+y_bin = [int(p>=0.5) for p in y_pred]
+
+# confusion matrix to find false positives and false negatives
+
+A = confusion_matrix(y_test, y_bin, labels=[1,0])
+print(A)
+
+# calculating accuracy score for the model
+
+score= accuracy_score(y_test, y_bin)
+print(f'Accuracy: {round(score*100,2)}%')
