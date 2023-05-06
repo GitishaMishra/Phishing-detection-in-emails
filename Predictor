@@ -1,0 +1,15 @@
+file_attachment_check = pred1
+url_check = url_check_result
+email_text_check = email_result
+
+final_result = (file_attachment_check+url_check+email_text_check)/3
+print(final_result)
+
+if final_result >= 0.8:
+  print("Very likely that your email is phishing- ignore this email, or report it")
+elif final_result >=0.5 and final_result < 0.8:
+  print("Some possiblity that you email is phishing- be careful if the sender is someone you know")
+elif final_result >= 0.3 and final_result < 0.5:
+  print("Some possibility that your email is not phishing- but please exercise caution while opening them")
+elif final_result < 0.3:
+  print("Low possibility that your email is not phishing")
